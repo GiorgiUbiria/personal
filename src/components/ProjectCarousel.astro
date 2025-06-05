@@ -1,0 +1,412 @@
+---
+// Project Showcase Carousel with 3D Effects
+const projects = await Astro.glob("../pages/projects/*.md");
+---
+
+<div class="project-carousel-container card card-compact card-bordered border border-[oklch(var(--s))] w-full hover:shadow-xl transition-all duration-300 my-4">
+  <div class="card-body">
+    <h3 class="card-title text-lg font-bold mb-6 flex items-center">
+      <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      Featured Projects
+    </h3>
+    
+    <div class="carousel-wrapper relative overflow-hidden rounded-lg">
+      <div class="carousel-track flex transition-transform duration-700 ease-out" id="carousel-track">
+        {projects.map((project, index) => (
+          <div 
+            class="carousel-slide flex-shrink-0 w-full relative group"
+            data-index={index}
+          >
+            <div class="project-card-3d relative h-80 perspective-1000">
+              <div class="card-inner relative w-full h-full transition-transform duration-700 preserve-3d group-hover:rotate-y-180">
+                <!-- Front of card -->
+                <div class="card-face card-front absolute inset-0 backface-hidden bg-gradient-to-br from-primary/10 via-base-100 to-secondary/10 rounded-lg border border-base-300 p-6 flex flex-col justify-between">
+                  <div>
+                    <h4 class="text-xl font-bold text-base-content mb-2">{project.frontmatter.title}</h4>
+                    <p class="text-sm text-base-content/70 mb-4 line-clamp-3">
+                      <Fragment set:html={project.compiledContent().slice(0, 150) + '...'} />
+                    </p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                      {project.frontmatter.tags?.slice(0, 4).map((tag) => (
+                        <span class="badge badge-sm badge-outline">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs text-secondary">{project.frontmatter.date}</span>
+                    <div class="text-xs text-primary font-medium">Hover to flip →</div>
+                  </div>
+                </div>
+                
+                <!-- Back of card -->
+                <div class="card-face card-back absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-secondary/10 via-base-100 to-primary/10 rounded-lg border border-base-300 p-6 flex flex-col justify-between">
+                  <div>
+                    <h4 class="text-xl font-bold text-base-content mb-4">Project Details</h4>
+                    <div class="space-y-3">
+                      <div>
+                        <h5 class="font-semibold text-sm text-primary mb-1">Technologies</h5>
+                        <div class="flex flex-wrap gap-1">
+                          {project.frontmatter.tags?.map((tag) => (
+                            <span class="badge badge-xs bg-primary/20 text-primary border-0">{tag}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h5 class="font-semibold text-sm text-secondary mb-1">Description</h5>
+                        <p class="text-xs text-base-content/80 leading-relaxed">
+                          <Fragment set:html={project.compiledContent().slice(0, 200) + '...'} />
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex gap-2">
+                    <a 
+                      href={project.frontmatter.url} 
+                      target="_blank"
+                      class="btn btn-primary btn-sm flex-1"
+                    >
+                      View Project
+                    </a>
+                    <button 
+                      class="btn btn-outline btn-sm"
+                      onclick="this.closest('.carousel-slide').querySelector('.card-inner').style.transform = 'rotateY(0deg)'"
+                    >
+                      ← Back
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <!-- Navigation -->
+      <div class="carousel-nav absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+        {projects.map((_, index) => (
+          <button 
+            class={`nav-dot w-3 h-3 rounded-full transition-all duration-300 ${index === 0 ? 'bg-primary scale-125' : 'bg-base-300 hover:bg-primary/50'}`}
+            data-index={index}
+          ></button>
+        ))}
+      </div>
+      
+      <!-- Arrow Navigation -->
+      <button class="carousel-btn carousel-prev absolute left-4 top-1/2 transform -translate-y-1/2 btn btn-circle btn-sm bg-base-100/80 border-base-300 hover:bg-primary hover:text-primary-content">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      
+      <button class="carousel-btn carousel-next absolute right-4 top-1/2 transform -translate-y-1/2 btn btn-circle btn-sm bg-base-100/80 border-base-300 hover:bg-primary hover:text-primary-content">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ projects }}>
+  class ProjectCarousel {
+    constructor() {
+      this.track = document.getElementById('carousel-track');
+      this.slides = document.querySelectorAll('.carousel-slide');
+      this.dots = document.querySelectorAll('.nav-dot');
+      this.prevBtn = document.querySelector('.carousel-prev');
+      this.nextBtn = document.querySelector('.carousel-next');
+      this.currentIndex = 0;
+      this.isAnimating = false;
+      this.autoplayInterval = null;
+      
+      if (this.track) {
+        this.init();
+      }
+    }
+
+    init() {
+      this.bindEvents();
+      this.startAutoplay();
+      this.setupIntersectionObserver();
+    }
+
+    bindEvents() {
+      // Dot navigation
+      this.dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => this.goToSlide(index));
+      });
+
+      // Arrow navigation
+      this.prevBtn?.addEventListener('click', () => this.previousSlide());
+      this.nextBtn?.addEventListener('click', () => this.nextSlide());
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') this.previousSlide();
+        if (e.key === 'ArrowRight') this.nextSlide();
+      });
+
+      // Touch/swipe support
+      let startX = 0;
+      let endX = 0;
+
+      this.track.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+      });
+
+      this.track.addEventListener('touchend', (e) => {
+        endX = e.changedTouches[0].clientX;
+        const diff = startX - endX;
+        
+        if (Math.abs(diff) > 50) {
+          if (diff > 0) {
+            this.nextSlide();
+          } else {
+            this.previousSlide();
+          }
+        }
+      });
+
+      // Pause autoplay on hover
+      this.track.addEventListener('mouseenter', () => this.stopAutoplay());
+      this.track.addEventListener('mouseleave', () => this.startAutoplay());
+    }
+
+    setupIntersectionObserver() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            this.startAutoplay();
+          } else {
+            this.stopAutoplay();
+          }
+        });
+      });
+
+      observer.observe(this.track);
+    }
+
+    goToSlide(index) {
+      if (this.isAnimating || index === this.currentIndex) return;
+      
+      this.isAnimating = true;
+      this.currentIndex = index;
+      
+      // Update track position
+      const translateX = -index * 100;
+      this.track.style.transform = `translateX(${translateX}%)`;
+      
+      // Update dots
+      this.updateDots();
+      
+      // Add 3D entrance animation to current slide
+      this.animateSlideEntrance(index);
+      
+      setTimeout(() => {
+        this.isAnimating = false;
+      }, 700);
+    }
+
+    animateSlideEntrance(index) {
+      const slide = this.slides[index];
+      const card = slide.querySelector('.project-card-3d');
+      
+      // Reset any existing transforms
+      card.style.transform = 'translateZ(-100px) rotateY(-15deg)';
+      card.style.opacity = '0.7';
+      
+      // Animate to normal position
+      setTimeout(() => {
+        card.style.transform = 'translateZ(0) rotateY(0deg)';
+        card.style.opacity = '1';
+      }, 100);
+    }
+
+    updateDots() {
+      this.dots.forEach((dot, index) => {
+        if (index === this.currentIndex) {
+          dot.classList.add('bg-primary', 'scale-125');
+          dot.classList.remove('bg-base-300');
+        } else {
+          dot.classList.remove('bg-primary', 'scale-125');
+          dot.classList.add('bg-base-300');
+        }
+      });
+    }
+
+    nextSlide() {
+      const nextIndex = (this.currentIndex + 1) % this.slides.length;
+      this.goToSlide(nextIndex);
+    }
+
+    previousSlide() {
+      const prevIndex = (this.currentIndex - 1 + this.slides.length) % this.slides.length;
+      this.goToSlide(prevIndex);
+    }
+
+    startAutoplay() {
+      this.stopAutoplay();
+      this.autoplayInterval = setInterval(() => {
+        this.nextSlide();
+      }, 5000);
+    }
+
+    stopAutoplay() {
+      if (this.autoplayInterval) {
+        clearInterval(this.autoplayInterval);
+        this.autoplayInterval = null;
+      }
+    }
+  }
+
+  // Initialize carousel
+  document.addEventListener('DOMContentLoaded', () => {
+    new ProjectCarousel();
+  });
+</script>
+
+<style>
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  .project-card-3d {
+    transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner {
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .carousel-slide:hover .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .carousel-wrapper {
+    position: relative;
+    height: 320px;
+  }
+
+  .carousel-track {
+    height: 100%;
+  }
+
+  .carousel-slide {
+    min-width: 100%;
+  }
+
+  .card-face {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, 
+      oklch(var(--p)/0.1) 0%, 
+      oklch(var(--b1)) 50%, 
+      oklch(var(--s)/0.1) 100%
+    );
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, 
+      oklch(var(--s)/0.1) 0%, 
+      oklch(var(--b1)) 50%, 
+      oklch(var(--p)/0.1) 100%
+    );
+  }
+
+  .carousel-btn {
+    opacity: 0.8;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .carousel-btn:hover {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .nav-dot {
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .nav-dot:hover {
+    transform: scale(1.2);
+  }
+
+  /* Line clamp utility */
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Entrance animations */
+  .carousel-slide {
+    animation: slide-fade-in 0.8s ease-out both;
+  }
+
+  @keyframes slide-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .carousel-wrapper {
+      height: 280px;
+    }
+    
+    .card-face {
+      padding: 1rem;
+    }
+    
+    .carousel-btn {
+      width: 2rem;
+      height: 2rem;
+    }
+    
+    .nav-dot {
+      width: 0.625rem;
+      height: 0.625rem;
+    }
+  }
+
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .card-inner,
+    .project-card-3d,
+    .carousel-track,
+    .carousel-btn,
+    .nav-dot {
+      transition: none;
+      animation: none;
+    }
+    
+    .carousel-slide:hover .card-inner {
+      transform: none;
+    }
+  }
+</style> 

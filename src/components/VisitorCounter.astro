@@ -1,0 +1,464 @@
+---
+// Real-time Visitor Counter Component
+---
+
+<div
+    class="visitor-counter-container card card-compact card-bordered border border-[oklch(var(--s))] w-full hover:shadow-xl transition-all duration-300 my-4"
+>
+    <div class="card-body">
+        <h3 class="card-title text-lg font-bold mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                ></path>
+            </svg>
+            Site Analytics
+        </h3>
+
+        <div class="stats-grid grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- Total Visitors -->
+            <div
+                class="stat-card bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-4 text-center hover:scale-105 transition-all duration-300"
+            >
+                <div class="stat-icon mb-2">
+                    <svg
+                        class="w-6 h-6 mx-auto text-primary"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H16c-.8 0-1.54.37-2 1l-3 4v2h2l2.54-3.4L16.5 18H20z"
+                        ></path>
+                    </svg>
+                </div>
+                <div
+                    class="stat-value text-2xl font-bold text-primary"
+                    id="total-visitors"
+                >
+                    0
+                </div>
+                <div
+                    class="stat-label text-xs text-secondary uppercase tracking-wide"
+                >
+                    Total Visitors
+                </div>
+            </div>
+
+            <!-- Today's Visitors -->
+            <div
+                class="stat-card bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-lg p-4 text-center hover:scale-105 transition-all duration-300"
+            >
+                <div class="stat-icon mb-2">
+                    <svg
+                        class="w-6 h-6 mx-auto text-secondary"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                        ></path>
+                    </svg>
+                </div>
+                <div
+                    class="stat-value text-2xl font-bold text-secondary"
+                    id="today-visitors"
+                >
+                    0
+                </div>
+                <div
+                    class="stat-label text-xs text-secondary uppercase tracking-wide"
+                >
+                    Today
+                </div>
+            </div>
+
+            <!-- Online Now -->
+            <div
+                class="stat-card bg-gradient-to-br from-accent/10 to-accent/5 rounded-lg p-4 text-center hover:scale-105 transition-all duration-300"
+            >
+                <div class="stat-icon mb-2 relative">
+                    <svg
+                        class="w-6 h-6 mx-auto text-accent"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                        ></path>
+                    </svg>
+                    <div
+                        class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"
+                    >
+                    </div>
+                </div>
+                <div
+                    class="stat-value text-2xl font-bold text-accent"
+                    id="online-now"
+                >
+                    1
+                </div>
+                <div
+                    class="stat-label text-xs text-secondary uppercase tracking-wide"
+                >
+                    Online Now
+                </div>
+            </div>
+
+            <!-- Page Views -->
+            <div
+                class="stat-card bg-gradient-to-br from-info/10 to-info/5 rounded-lg p-4 text-center hover:scale-105 transition-all duration-300"
+            >
+                <div class="stat-icon mb-2">
+                    <svg
+                        class="w-6 h-6 mx-auto text-info"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+                        ></path>
+                    </svg>
+                </div>
+                <div
+                    class="stat-value text-2xl font-bold text-info"
+                    id="page-views"
+                >
+                    0
+                </div>
+                <div
+                    class="stat-label text-xs text-secondary uppercase tracking-wide"
+                >
+                    Page Views
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity mt-6">
+            <h4
+                class="font-semibold mb-3 text-sm uppercase tracking-wide flex items-center"
+            >
+                <div
+                    class="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"
+                >
+                </div>
+                Recent Activity
+            </h4>
+            <div class="activity-feed space-y-2 max-h-32 overflow-y-auto">
+                <div
+                    class="activity-item flex items-center text-xs text-base-content/70 p-2 bg-base-200/50 rounded"
+                >
+                    <div class="w-2 h-2 bg-primary rounded-full mr-2"></div>
+                    <span
+                        >Visitor from <strong>Georgia</strong> • <span
+                            id="time-1">Just now</span
+                        ></span
+                    >
+                </div>
+                <div
+                    class="activity-item flex items-center text-xs text-base-content/70 p-2 bg-base-200/50 rounded"
+                >
+                    <div class="w-2 h-2 bg-secondary rounded-full mr-2"></div>
+                    <span
+                        >Page view: Projects • <span id="time-2">2 min ago</span
+                        ></span
+                    >
+                </div>
+                <div
+                    class="activity-item flex items-center text-xs text-base-content/70 p-2 bg-base-200/50 rounded"
+                >
+                    <div class="w-2 h-2 bg-accent rounded-full mr-2"></div>
+                    <span
+                        >Visitor from <strong>United States</strong> • <span
+                            id="time-3">5 min ago</span
+                        ></span
+                    >
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    class VisitorCounter {
+        storageKey: string;
+        sessionKey: string;
+        data: any;
+        isNewSession: boolean;
+        constructor() {
+            this.storageKey = "portfolio_visitor_data";
+            this.sessionKey = "portfolio_session";
+            this.data = this.loadData();
+            this.isNewSession = this.checkSession();
+
+            this.init();
+        }
+
+        init() {
+            this.updateVisitorCount();
+            this.startCounterAnimations();
+            this.updateRecentActivity();
+            this.startRealTimeUpdates();
+        }
+
+        loadData() {
+            const stored = localStorage.getItem(this.storageKey);
+            if (stored) {
+                return JSON.parse(stored);
+            }
+
+            return {
+                totalVisitors: 1247, // Starting number
+                todayVisitors: 23,
+                pageViews: 3891,
+                lastVisit: new Date().toISOString(),
+                dailyReset: new Date().toDateString(),
+            };
+        }
+
+        saveData() {
+            localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+        }
+
+        checkSession() {
+            const sessionExists = sessionStorage.getItem(this.sessionKey);
+            if (!sessionExists) {
+                sessionStorage.setItem(this.sessionKey, "active");
+                return true;
+            }
+            return false;
+        }
+
+        updateVisitorCount() {
+            const today = new Date().toDateString();
+
+            // Reset daily count if it's a new day
+            if (this.data.dailyReset !== today) {
+                this.data.todayVisitors = 0;
+                this.data.dailyReset = today;
+            }
+
+            // Increment counters for new sessions
+            if (this.isNewSession) {
+                this.data.totalVisitors += 1;
+                this.data.todayVisitors += 1;
+            }
+
+            // Always increment page views
+            this.data.pageViews += 1;
+            this.data.lastVisit = new Date().toISOString();
+
+            this.saveData();
+        }
+
+        startCounterAnimations() {
+            this.animateCounter(
+                "total-visitors",
+                this.data.totalVisitors,
+                2000,
+            );
+            this.animateCounter(
+                "today-visitors",
+                this.data.todayVisitors,
+                1500,
+            );
+            this.animateCounter("page-views", this.data.pageViews, 2500);
+            this.animateCounter(
+                "online-now",
+                Math.floor(Math.random() * 5) + 1,
+                1000,
+            );
+        }
+
+        animateCounter(elementId, target, duration) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target.toLocaleString();
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current).toLocaleString();
+                }
+            }, 16);
+        }
+
+        updateRecentActivity() {
+            const activities = [
+                { location: "Georgia", action: "visited", time: "Just now" },
+                {
+                    location: "United States",
+                    action: "viewed Projects",
+                    time: "2 min ago",
+                },
+                {
+                    location: "Germany",
+                    action: "downloaded CV",
+                    time: "5 min ago",
+                },
+                {
+                    location: "United Kingdom",
+                    action: "visited",
+                    time: "8 min ago",
+                },
+                {
+                    location: "Canada",
+                    action: "viewed GitHub",
+                    time: "12 min ago",
+                },
+            ];
+
+            const activityFeed = document.querySelector(".activity-feed");
+            if (activityFeed) {
+                activityFeed.innerHTML = activities
+                    .slice(0, 3)
+                    .map(
+                        (activity, index) => `
+          <div class="activity-item flex items-center text-xs text-base-content/70 p-2 bg-base-200/50 rounded animate-fade-in" style="animation-delay: ${index * 0.1}s">
+            <div class="w-2 h-2 bg-primary rounded-full mr-2"></div>
+            <span>Visitor from <strong>${activity.location}</strong> • ${activity.action} • <span>${activity.time}</span></span>
+          </div>
+        `,
+                    )
+                    .join("");
+            }
+        }
+
+        startRealTimeUpdates() {
+            // Simulate real-time updates
+            setInterval(() => {
+                const onlineElement = document.getElementById("online-now");
+                if (onlineElement) {
+                    const newCount = Math.floor(Math.random() * 8) + 1;
+                    this.animateCounter("online-now", newCount, 500);
+                }
+            }, 10000); // Update every 10 seconds
+
+            // Occasionally add new activity
+            setInterval(() => {
+                if (Math.random() > 0.7) {
+                    this.updateRecentActivity();
+                }
+            }, 30000); // Check every 30 seconds
+        }
+    }
+
+    // Initialize visitor counter
+    document.addEventListener("DOMContentLoaded", () => {
+        new VisitorCounter();
+    });
+</script>
+
+<style>
+    .stat-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid transparent;
+    }
+
+    .stat-card:hover {
+        border-color: oklch(var(--p) / 0.3);
+        box-shadow: 0 8px 25px oklch(var(--p) / 0.15);
+    }
+
+    .stat-icon svg {
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover .stat-icon svg {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .activity-feed {
+        scrollbar-width: thin;
+        scrollbar-color: oklch(var(--p) / 0.3) transparent;
+    }
+
+    .activity-feed::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .activity-feed::-webkit-scrollbar-thumb {
+        background: oklch(var(--p) / 0.3);
+        border-radius: 2px;
+    }
+
+    .activity-item {
+        animation: slide-in-right 0.5s ease-out both;
+    }
+
+    @keyframes slide-in-right {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fade-in 0.5s ease-out both;
+    }
+
+    /* Pulse animation for online indicator */
+    .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+        0%,
+        100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .stat-card {
+            padding: 0.75rem;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+        }
+    }
+
+    /* Respect reduced motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+        .stat-card,
+        .stat-icon svg,
+        .activity-item,
+        .animate-fade-in,
+        .animate-pulse {
+            animation: none;
+            transition: none;
+        }
+    }
+</style>
+

@@ -4,6 +4,12 @@ import AccordionLayout from "../layouts/AccordionLayout.astro";
 import * as about from "../pages/about/about.md";
 import Card from "./Card.astro";
 import ContactCard from "./ContactCard.astro";
+import GitHubStats from "./GitHubStats.astro";
+import InteractiveTimeline from "./InteractiveTimeline.astro";
+import ParticleBackground from "./ParticleBackground.astro";
+import ProjectCarousel from "./ProjectCarousel.astro";
+import VisitorCounter from "./VisitorCounter.astro";
+
 const works = await Astro.glob("../pages/works/*.md");
 const projects = await Astro.glob("../pages/projects/*.md");
 const certificates = await Astro.glob("../pages/certificates/*.md");
@@ -13,11 +19,30 @@ const PDF = "/cv.pdf";
 const CERTIFICATE = "/certificate.webp";
 ---
 
+<!-- Particle Background -->
+<ParticleBackground />
+
 <div class="join join-vertical gap-1">
   <AccordionLayout title={"About"} icon={"carbon:identification"}>
     <article class="text-justify">
       <Fragment set:html={about.compiledContent()} />
     </article>
+  </AccordionLayout>
+
+  <AccordionLayout title={"Site Analytics"} icon={"carbon:analytics"}>
+    <VisitorCounter />
+  </AccordionLayout>
+
+  <AccordionLayout title={"Career Journey"} icon={"carbon:roadmap"}>
+    <InteractiveTimeline />
+  </AccordionLayout>
+
+  <AccordionLayout title={"GitHub Activity"} icon={"carbon:logo-github"}>
+    <GitHubStats />
+  </AccordionLayout>
+
+  <AccordionLayout title={"Featured Projects"} icon={"carbon:star"}>
+    <ProjectCarousel />
   </AccordionLayout>
 
   <AccordionLayout title={"Work"} icon={"carbon:construction"}>
@@ -38,7 +63,7 @@ const CERTIFICATE = "/certificate.webp";
     }
   </AccordionLayout>
 
-  <AccordionLayout title={"Projects"} icon={"carbon:tools"}>
+  <AccordionLayout title={"All Projects"} icon={"carbon:tools"}>
     {
       projects.map((item) => {
         return (

@@ -15,8 +15,9 @@ import * as about from "../pages/about/about.md";
 
     <div class="text-center animate-slide-up-stagger w-full">
       <div class="flex justify-center items-center mb-2 relative">
-        <h1 class="text-3xl font-extrabold tracking-tight md:text-3xl relative hover:text-primary transition-colors duration-300 animate-text-glow text-center">
-          {about.frontmatter.name}
+        <h1 class="text-3xl font-extrabold tracking-tight md:text-3xl relative hover:text-primary transition-colors duration-300 text-center">
+          <span id="typewriter-name" class="typewriter-text" data-text={about.frontmatter.name}></span>
+          <span class="typewriter-cursor">|</span>
           <div class="absolute top-0 left-full ml-2 -mt-4 animate-bounce-gentle">
             <div class="badge w-max text-sm font-light badge-outline shadow-lg hover:badge-primary hover:text-primary-content hover:scale-110 transition-all duration-300 cursor-default">
               {about.frontmatter.pronouns}
@@ -25,7 +26,7 @@ import * as about from "../pages/about/about.md";
         </h1>
       </div>
       <h2 class="text-lg mb-2 text-secondary hover:text-base-content transition-colors duration-300 animate-slide-in-left text-center">
-        {about.frontmatter.designation}
+        <span id="typewriter-title" class="typewriter-text" data-text={about.frontmatter.designation}></span>
       </h2>
       <div class="flex items-center justify-center mt-1 hover:text-primary transition-colors duration-300 animate-slide-in-right">
         <Icon name="carbon:location" class="w-4 h-4 mr-1 animate-pulse-gentle" />
@@ -35,7 +36,57 @@ import * as about from "../pages/about/about.md";
   </article>
 </header>
 
+<script>
+  // Typewriter effect implementation
+  function typeWriter(element, text, speed = 100) {
+    let i = 0;
+    element.innerHTML = '';
+    
+    function type() {
+      if (i < text.length) {
+        element.innerHTML += text.charAt(i);
+        i++;
+        setTimeout(type, speed);
+      }
+    }
+    
+    // Start typing after a delay
+    setTimeout(type, 500);
+  }
+
+  // Initialize typewriter effects
+  document.addEventListener('DOMContentLoaded', () => {
+    const nameElement = document.getElementById('typewriter-name');
+    const titleElement = document.getElementById('typewriter-title');
+    
+    if (nameElement) {
+      const nameText = nameElement.getAttribute('data-text');
+      typeWriter(nameElement, nameText, 80);
+    }
+    
+    if (titleElement) {
+      const titleText = titleElement.getAttribute('data-text');
+      // Start title typing after name is done
+      setTimeout(() => {
+        typeWriter(titleElement, titleText, 60);
+      }, 2000);
+    }
+  });
+</script>
+
 <style>
+  /* Typewriter cursor animation */
+  .typewriter-cursor {
+    animation: blink 1s infinite;
+    color: oklch(var(--p));
+    font-weight: normal;
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
   /* Floating animation for profile image */
   @keyframes float {
     0%, 100% {
@@ -80,34 +131,6 @@ import * as about from "../pages/about/about.md";
 
   .animate-slide-up-stagger {
     animation: slide-up-stagger 0.6s ease-out 0.3s both;
-  }
-
-  /* Text glow effect */
-  @keyframes text-glow {
-    0%, 100% {
-      text-shadow: 0 0 5px transparent;
-    }
-    50% {
-      text-shadow: 0 0 10px oklch(var(--p)/0.3);
-    }
-  }
-
-  .animate-text-glow:hover {
-    animation: text-glow 2s ease-in-out infinite;
-  }
-
-  /* Gentle bounce for badge */
-  @keyframes bounce-gentle {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-3px);
-    }
-  }
-
-  .animate-bounce-gentle {
-    animation: bounce-gentle 3s ease-in-out infinite;
   }
 
   /* Slide in animations */
@@ -155,6 +178,20 @@ import * as about from "../pages/about/about.md";
 
   .animate-pulse-gentle {
     animation: pulse-gentle 3s ease-in-out infinite;
+  }
+
+  /* Gentle bounce for badge */
+  @keyframes bounce-gentle {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+
+  .animate-bounce-gentle {
+    animation: bounce-gentle 3s ease-in-out infinite;
   }
 
   /* Enhanced hover effects */

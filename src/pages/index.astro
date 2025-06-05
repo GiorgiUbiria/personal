@@ -3,6 +3,8 @@ import "@fontsource-variable/dm-sans";
 import Container from "../components/Container.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
+import MagneticCursor from "../components/MagneticCursor.astro";
+import ParallaxElements from "../components/ParallaxElements.astro";
 import { Icon } from "astro-icon/components";
 ---
 
@@ -27,47 +29,140 @@ import { Icon } from "astro-icon/components";
     <meta name="generator" content={Astro.generator} />
     <title>Giorgi Ubiria CV</title>
   </head>
-  <body class="flex flex-col min-h-screen bg-gradient-to-br from-base-100 via-base-200/30 to-base-100 animate-fade-in">
-    <div class="fixed inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none"></div>
+  <body class="flex flex-col min-h-screen bg-gradient-to-br from-base-100 via-base-200/30 to-base-100 animate-fade-in overflow-x-hidden">
+    <!-- Magnetic Cursor -->
+    <MagneticCursor />
+    
+    <!-- Parallax Background Elements -->
+    <ParallaxElements />
+    
+    <!-- Animated Background Gradients -->
+    <div class="fixed inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none animate-gradient-shift"></div>
+    <div class="fixed inset-0 bg-gradient-to-tl from-transparent via-accent/3 to-transparent pointer-events-none animate-gradient-shift-reverse"></div>
     
     <div class="relative z-10 flex flex-col min-h-screen">
-      <!-- Theme Toggle -->
-      <div class="flex items-center absolute top-4 right-4 md:top-6 md:right-6 lg:top-8 lg:right-8 xl:top-10 xl:right-10 z-20 backdrop-blur-sm bg-base-100/80 rounded-full p-2 shadow-lg border border-base-300/50 hover:shadow-xl transition-all duration-300">
-        <Icon name="carbon:moon" class="w-4 h-4 text-base-content/70 transition-colors duration-300" />
+      <!-- Enhanced Theme Toggle -->
+      <div class="flex items-center absolute top-4 right-4 md:top-6 md:right-6 lg:top-8 lg:right-8 xl:top-10 xl:right-10 z-20 backdrop-blur-md bg-base-100/90 rounded-full p-3 shadow-xl border border-base-300/50 hover:shadow-2xl hover:scale-105 transition-all duration-300 group">
+        <Icon name="carbon:moon" class="w-4 h-4 text-base-content/70 transition-all duration-300 group-hover:text-primary group-hover:rotate-12" />
         <input
           type="checkbox"
           data-toggle-theme="black,lofi"
           data-act-class="ACTIVECLASS"
-          class="toggle toggle-sm mx-2 bg-secondary hover:bg-secondary/80 transition-all duration-300"
+          class="toggle toggle-sm mx-2 bg-secondary hover:bg-secondary/80 transition-all duration-300 hover:scale-110"
           checked
         />
-        <Icon name="carbon:light" class="w-4 h-4 text-base-content/70 transition-colors duration-300" />
+        <Icon name="carbon:light" class="w-4 h-4 text-base-content/70 transition-all duration-300 group-hover:text-secondary group-hover:rotate-12" />
+        
+        <!-- Glow effect -->
+        <div class="absolute inset-0 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-xl"></div>
       </div>
 
-      <!-- Header Section -->
-      <div class="w-full flex justify-center">
+      <!-- Header Section with enhanced animations -->
+      <div class="w-full flex justify-center animate-slide-down-delayed">
         <Header />
       </div>
 
-      <!-- Divider -->
+      <!-- Enhanced Divider with animated particles -->
       <div class="w-full flex justify-center">
-        <div class="divider h-fit max-w-3xl w-[95vw] flex flex-nowrap bg-gradient-to-r from-transparent via-secondary/50 to-transparent animate-slide-in-delayed"></div>
+        <div class="divider-container relative max-w-3xl w-[95vw] flex justify-center animate-slide-in-delayed">
+          <div class="divider h-fit bg-gradient-to-r from-transparent via-secondary/50 to-transparent relative overflow-hidden">
+            <!-- Animated particles on divider -->
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-2 h-2 bg-primary rounded-full animate-ping opacity-75"></div>
+              <div class="w-1 h-1 bg-secondary rounded-full animate-pulse ml-4 opacity-60"></div>
+              <div class="w-1.5 h-1.5 bg-accent rounded-full animate-bounce ml-2 opacity-50"></div>
+            </div>
+          </div>
+        </div>
       </div>
       
-      <!-- Main Content -->
+      <!-- Main Content with enhanced scroll animations -->
       <main class="flex-grow flex justify-center">
-        <div class="max-h-[90vh] md:max-h-[70vh] max-w-3xl overflow-y-scroll py-2 w-[95vw] animate-slide-up-delayed">
-          <div class="container">
+        <div class="main-content-wrapper max-h-[90vh] md:max-h-[70vh] max-w-3xl overflow-y-scroll py-2 w-[95vw] animate-slide-up-delayed relative">
+          <!-- Scroll progress indicator -->
+          <div class="scroll-progress fixed top-0 left-0 h-1 bg-gradient-to-r from-primary to-secondary z-30 transition-all duration-300"></div>
+          
+          <div class="container relative">
             <Container />
           </div>
+          
+          <!-- Scroll to top button -->
+          <button 
+            id="scroll-to-top" 
+            class="fixed bottom-20 right-6 btn btn-circle btn-primary shadow-lg opacity-0 pointer-events-none transition-all duration-300 hover:scale-110 hover:shadow-xl z-20"
+            aria-label="Scroll to top"
+          >
+            <Icon name="carbon:chevron-up" class="w-5 h-5" />
+          </button>
         </div>
       </main>
       
-      <!-- Footer -->
+      <!-- Enhanced Footer -->
       <Footer class="flex justify-center items-center py-4 animate-fade-in-delayed" />
     </div>
   </body>
 </html>
+
+<script>
+  // Enhanced scroll progress and scroll-to-top functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const scrollContainer = document.querySelector('.main-content-wrapper');
+    const scrollProgress = document.querySelector('.scroll-progress');
+    const scrollToTopBtn = document.getElementById('scroll-to-top');
+    
+    if (scrollContainer && scrollProgress) {
+      scrollContainer.addEventListener('scroll', () => {
+        const scrollTop = scrollContainer.scrollTop;
+        const scrollHeight = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+        const scrollPercentage = (scrollTop / scrollHeight) * 100;
+        
+        if (scrollProgress instanceof HTMLElement) {
+            scrollProgress.style.width = `${scrollPercentage}%`;
+        }
+        
+        // Show/hide scroll to top button
+        if (scrollToTopBtn) {
+          if (scrollTop > 300) {
+            scrollToTopBtn.style.opacity = '1';
+            scrollToTopBtn.style.pointerEvents = 'auto';
+          } else {
+            scrollToTopBtn.style.opacity = '0';
+            scrollToTopBtn.style.pointerEvents = 'none';
+          }
+        }
+      });
+    }
+    
+    // Scroll to top functionality
+    if (scrollToTopBtn && scrollContainer) {
+      scrollToTopBtn.addEventListener('click', () => {
+        scrollContainer.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    }
+    
+    // Enhanced page load animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-fade-in-up');
+        }
+      });
+    }, observerOptions);
+    
+    // Observe all cards and sections
+    document.querySelectorAll('.card, .collapse').forEach(el => {
+      observer.observe(el);
+    });
+  });
+</script>
 
 <style is:global>
   /* Smooth scrolling */
@@ -112,6 +207,46 @@ import { Icon } from "astro-icon/components";
     }
   }
 
+  @keyframes slide-down {
+    from {
+      transform: translateY(-30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes gradient-shift-reverse {
+    0%, 100% {
+      background-position: 100% 50%;
+    }
+    50% {
+      background-position: 0% 50%;
+    }
+  }
+
   .animate-fade-in {
     animation: fade-in 0.8s ease-out;
   }
@@ -124,13 +259,31 @@ import { Icon } from "astro-icon/components";
     animation: slide-up 0.8s ease-out 0.4s both;
   }
 
+  .animate-slide-down-delayed {
+    animation: slide-down 0.6s ease-out 0.1s both;
+  }
+
   .animate-fade-in-delayed {
     animation: fade-in 0.6s ease-out 0.6s both;
   }
 
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out both;
+  }
+
+  .animate-gradient-shift {
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease infinite;
+  }
+
+  .animate-gradient-shift-reverse {
+    background-size: 200% 200%;
+    animation: gradient-shift-reverse 12s ease infinite;
+  }
+
   /* Enhanced scrollbar */
   .overflow-y-scroll::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
   }
 
   .overflow-y-scroll::-webkit-scrollbar-track {
@@ -142,11 +295,14 @@ import { Icon } from "astro-icon/components";
     background: linear-gradient(180deg, oklch(var(--p)), oklch(var(--s)));
     border-radius: 10px;
     transition: all 0.3s ease;
+    border: 2px solid transparent;
+    background-clip: content-box;
   }
 
   .overflow-y-scroll::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, oklch(var(--p)/0.8), oklch(var(--s)/0.8));
     transform: scaleX(1.2);
+    border: 1px solid transparent;
   }
 
   .overflow-y-scroll {
@@ -185,5 +341,43 @@ import { Icon } from "astro-icon/components";
     outline: 2px solid oklch(var(--p));
     outline-offset: 2px;
     border-radius: 4px;
+  }
+
+  /* Enhanced divider animations */
+  .divider-container {
+    position: relative;
+  }
+
+  .divider-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, oklch(var(--p)/0.3), transparent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  /* Scroll progress styling */
+  .scroll-progress {
+    background: linear-gradient(90deg, oklch(var(--p)), oklch(var(--s)), oklch(var(--a)));
+    box-shadow: 0 0 10px oklch(var(--p)/0.5);
+  }
+
+  /* Performance optimizations */
+  .main-content-wrapper {
+    will-change: scroll-position;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 </style>

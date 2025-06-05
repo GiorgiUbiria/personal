@@ -1,0 +1,329 @@
+---
+// Parallax Scrolling Elements
+---
+
+<div class="parallax-container fixed inset-0 pointer-events-none z-0 overflow-hidden">
+  <!-- Background layers with different scroll speeds -->
+  <div class="parallax-layer parallax-back absolute inset-0">
+    <div class="floating-shapes">
+      <div class="shape shape-1 absolute w-32 h-32 bg-primary/5 rounded-full blur-xl"></div>
+      <div class="shape shape-2 absolute w-24 h-24 bg-secondary/5 rounded-full blur-lg"></div>
+      <div class="shape shape-3 absolute w-40 h-40 bg-accent/5 rounded-full blur-2xl"></div>
+      <div class="shape shape-4 absolute w-16 h-16 bg-info/5 rounded-full blur-md"></div>
+      <div class="shape shape-5 absolute w-28 h-28 bg-warning/5 rounded-full blur-xl"></div>
+    </div>
+  </div>
+  
+  <div class="parallax-layer parallax-mid absolute inset-0">
+    <div class="geometric-patterns">
+      <svg class="pattern pattern-1 absolute opacity-10" width="100" height="100" viewBox="0 0 100 100">
+        <polygon points="50,10 90,90 10,90" fill="currentColor" class="text-primary"/>
+      </svg>
+      <svg class="pattern pattern-2 absolute opacity-10" width="80" height="80" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="30" fill="none" stroke="currentColor" stroke-width="2" class="text-secondary"/>
+      </svg>
+      <svg class="pattern pattern-3 absolute opacity-10" width="60" height="60" viewBox="0 0 60 60">
+        <rect x="10" y="10" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" class="text-accent"/>
+      </svg>
+    </div>
+  </div>
+  
+  <div class="parallax-layer parallax-front absolute inset-0">
+    <div class="light-rays">
+      <div class="ray ray-1 absolute bg-gradient-to-r from-transparent via-primary/10 to-transparent"></div>
+      <div class="ray ray-2 absolute bg-gradient-to-r from-transparent via-secondary/10 to-transparent"></div>
+      <div class="ray ray-3 absolute bg-gradient-to-r from-transparent via-accent/10 to-transparent"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  class ParallaxController {
+    scrollContainer: HTMLElement | null;
+    layers: HTMLElement[];
+    shapes: HTMLElement[];
+    patterns: SVGElement[];
+    rays: HTMLElement[];
+    isActive: boolean;
+
+    constructor() {
+      this.scrollContainer = null;
+      this.layers = [];
+      this.shapes = [];
+      this.patterns = [];
+      this.rays = [];
+      this.isActive = true;
+      
+      this.init();
+    }
+
+    init() {
+      this.scrollContainer = document.querySelector('.main-content-wrapper');
+      this.layers = Array.from(document.querySelectorAll<HTMLElement>('.parallax-layer'));
+      this.shapes = Array.from(document.querySelectorAll<HTMLElement>('.shape'));
+      this.patterns = Array.from(document.querySelectorAll<SVGElement>('.pattern'));
+      this.rays = Array.from(document.querySelectorAll<HTMLElement>('.ray'));
+      
+      if (this.scrollContainer) {
+        this.bindEvents();
+        this.initializePositions();
+        this.startAnimation();
+      }
+    }
+
+    bindEvents() {
+      if (!this.scrollContainer) return;
+      
+      this.scrollContainer.addEventListener('scroll', () => {
+        if (this.isActive) {
+          this.updateParallax();
+        }
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          this.isActive = entry.isIntersecting;
+        });
+      });
+
+      observer.observe(this.scrollContainer);
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        this.isActive = false;
+      }
+    }
+
+    initializePositions() {
+      this.shapes.forEach((shape, index) => {
+        const x = Math.random() * window.innerWidth;
+        const y = Math.random() * window.innerHeight;
+        shape.style.left = `${x}px`;
+        shape.style.top = `${y}px`;
+        shape.style.animationDelay = `${index * 0.5}s`;
+      });
+
+      this.patterns.forEach((pattern, index) => {
+        const x = Math.random() * (window.innerWidth - 100);
+        const y = Math.random() * (window.innerHeight - 100);
+        pattern.style.left = `${x}px`;
+        pattern.style.top = `${y}px`;
+        pattern.style.animationDelay = `${index * 0.8}s`;
+      });
+
+      this.rays.forEach((ray, index) => {
+        const angle = (index * 60) + Math.random() * 30;
+        const length = window.innerHeight * 1.5;
+        ray.style.width = `${length}px`;
+        ray.style.height = '2px';
+        ray.style.transform = `rotate(${angle}deg)`;
+        ray.style.left = `${Math.random() * window.innerWidth}px`;
+        ray.style.top = `${Math.random() * window.innerHeight}px`;
+      });
+    }
+
+    updateParallax() {
+      if (!this.scrollContainer) return;
+
+      const scrollTop = this.scrollContainer.scrollTop;
+      const scrollHeight = this.scrollContainer.scrollHeight;
+      const clientHeight = this.scrollContainer.clientHeight;
+      const scrollProgress = scrollTop / (scrollHeight - clientHeight);
+
+      const backLayer = document.querySelector<HTMLElement>('.parallax-back');
+      if (backLayer) {
+        backLayer.style.transform = `translateY(${scrollTop * 0.1}px)`;
+      }
+
+      const midLayer = document.querySelector<HTMLElement>('.parallax-mid');
+      if (midLayer) {
+        midLayer.style.transform = `translateY(${scrollTop * 0.3}px) rotate(${scrollProgress * 10}deg)`;
+      }
+
+      const frontLayer = document.querySelector<HTMLElement>('.parallax-front');
+      if (frontLayer) {
+        frontLayer.style.transform = `translateY(${scrollTop * 0.5}px)`;
+        frontLayer.style.opacity = `${Math.max(0.1, 1 - (scrollProgress * 0.5))}`;
+      }
+
+      this.shapes.forEach((shape, index) => {
+        const speed = 0.2 + (index * 0.1);
+        shape.style.transform = `translateY(${scrollTop * speed}px) rotate(${scrollProgress * (30 + index * 10)}deg)`;
+      });
+
+      this.patterns.forEach((pattern, index) => {
+        const speed = 0.15 + (index * 0.05);
+        pattern.style.transform = `translateY(${scrollTop * speed}px) scale(${1 + (scrollProgress * 0.2)})`;
+      });
+    }
+
+    startAnimation() {
+      this.shapes.forEach((shape, index) => {
+        const duration = 8000 + (index * 1000);
+        setTimeout(() => {
+          shape.style.animation = `float-gentle ${duration}ms ease-in-out infinite`;
+        }, index * 500);
+      });
+
+      this.patterns.forEach((pattern, index) => {
+        const duration = 6000 + (index * 800);
+        setTimeout(() => {
+          pattern.style.animation = `pulse-gentle ${duration}ms ease-in-out infinite`;
+        }, index * 300);
+      });
+
+      this.rays.forEach((ray, index) => {
+        const duration = 4000 + (index * 600);
+        setTimeout(() => {
+          ray.style.animation = `shimmer-ray ${duration}ms ease-in-out infinite`;
+        }, index * 200);
+      });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    new ParallaxController();
+  });
+</script>
+
+<style>
+  .parallax-container {
+    z-index: -1;
+  }
+
+  .parallax-layer {
+    will-change: transform;
+  }
+
+  /* Floating shapes animations */
+  @keyframes float-gentle {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    25% {
+      transform: translateY(-10px) rotate(5deg);
+    }
+    50% {
+      transform: translateY(-5px) rotate(-3deg);
+    }
+    75% {
+      transform: translateY(-15px) rotate(8deg);
+    }
+  }
+
+  /* Pulse animation for patterns */
+  @keyframes pulse-gentle {
+    0%, 100% {
+      opacity: 0.1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.3;
+      transform: scale(1.1);
+    }
+  }
+
+  /* Shimmer animation for light rays */
+  @keyframes shimmer-ray {
+    0% {
+      opacity: 0;
+      transform: translateX(-100%) rotate(var(--ray-angle, 0deg));
+    }
+    50% {
+      opacity: 0.3;
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(100vw) rotate(var(--ray-angle, 0deg));
+    }
+  }
+
+  /* Shape specific styles */
+  .shape-1 {
+    animation-duration: 8s;
+  }
+
+  .shape-2 {
+    animation-duration: 10s;
+  }
+
+  .shape-3 {
+    animation-duration: 12s;
+  }
+
+  .shape-4 {
+    animation-duration: 9s;
+  }
+
+  .shape-5 {
+    animation-duration: 11s;
+  }
+
+  /* Pattern specific styles */
+  .pattern-1 {
+    animation-duration: 6s;
+  }
+
+  .pattern-2 {
+    animation-duration: 8s;
+  }
+
+  .pattern-3 {
+    animation-duration: 7s;
+  }
+
+  /* Ray specific styles */
+  .ray-1 {
+    --ray-angle: 15deg;
+    animation-duration: 4s;
+  }
+
+  .ray-2 {
+    --ray-angle: -20deg;
+    animation-duration: 5s;
+  }
+
+  .ray-3 {
+    --ray-angle: 10deg;
+    animation-duration: 6s;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .shape {
+      width: 50% !important;
+      height: 50% !important;
+    }
+    
+    .pattern {
+      width: 60px !important;
+      height: 60px !important;
+    }
+  }
+
+  /* Performance optimizations */
+  .parallax-layer {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .parallax-container {
+      display: none;
+    }
+    
+    .shape,
+    .pattern,
+    .ray {
+      animation: none !important;
+      transform: none !important;
+    }
+  }
+
+  /* Hide on very small screens for performance */
+  @media (max-width: 480px) {
+    .parallax-container {
+      display: none;
+    }
+  }
+</style> 

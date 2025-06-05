@@ -1,0 +1,146 @@
+---
+const { type = "card", count = 1 } = Astro.props;
+---
+
+<div class="loading-skeleton-container">
+  {Array.from({ length: count }).map((_, index) => (
+    <div class={`skeleton-${type} animate-pulse`} {...{ key: index }}>
+      {type === "card" && (
+        <div class="card card-compact card-bordered border border-base-300 w-full md:w-112 lg:w-128 my-4">
+          <div class="card-body">
+            <div class="grid grid-cols-3 gap-4 mb-2">
+              <div class="col-span-2">
+                <div class="skeleton-line h-6 bg-base-300 rounded mb-2"></div>
+                <div class="skeleton-line h-4 bg-base-300 rounded w-3/4"></div>
+              </div>
+              <div class="justify-self-end">
+                <div class="skeleton-badge h-6 w-16 bg-base-300 rounded-full"></div>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+              <div class="col-span-2">
+                <div class="skeleton-line h-4 bg-base-300 rounded mb-2"></div>
+                <div class="skeleton-line h-4 bg-base-300 rounded mb-2 w-5/6"></div>
+                <div class="skeleton-line h-4 bg-base-300 rounded w-4/5"></div>
+                <div class="flex gap-2 mt-4">
+                  <div class="skeleton-tag h-6 w-12 bg-base-300 rounded"></div>
+                  <div class="skeleton-tag h-6 w-16 bg-base-300 rounded"></div>
+                  <div class="skeleton-tag h-6 w-14 bg-base-300 rounded"></div>
+                </div>
+              </div>
+              <div class="justify-self-end">
+                <div class="skeleton-link h-4 w-20 bg-base-300 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {type === "header" && (
+        <div class="flex flex-col items-center gap-4 w-full max-w-2xl px-4">
+          <div class="skeleton-avatar w-20 h-20 bg-base-300 rounded-full"></div>
+          <div class="text-center w-full">
+            <div class="skeleton-line h-8 bg-base-300 rounded mb-2 w-48 mx-auto"></div>
+            <div class="skeleton-line h-5 bg-base-300 rounded mb-2 w-32 mx-auto"></div>
+            <div class="skeleton-line h-4 bg-base-300 rounded w-24 mx-auto"></div>
+          </div>
+        </div>
+      )}
+      
+      {type === "accordion" && (
+        <div class="collapse collapse-arrow border border-base-300 rounded-lg mb-2">
+          <div class="collapse-title">
+            <div class="flex items-center">
+              <div class="skeleton-icon w-8 h-8 bg-base-300 rounded mr-4"></div>
+              <div class="skeleton-line h-6 bg-base-300 rounded w-32"></div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  ))}
+</div>
+
+<style>
+  .loading-skeleton-container {
+    animation: skeleton-fade-in 0.3s ease-out;
+  }
+
+  @keyframes skeleton-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .skeleton-line,
+  .skeleton-badge,
+  .skeleton-tag,
+  .skeleton-link,
+  .skeleton-avatar,
+  .skeleton-icon {
+    background: linear-gradient(90deg, 
+      oklch(var(--b3)) 25%, 
+      oklch(var(--b2)) 50%, 
+      oklch(var(--b3)) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* Staggered animation for multiple skeletons */
+  .skeleton-card:nth-child(1) { animation-delay: 0s; }
+  .skeleton-card:nth-child(2) { animation-delay: 0.1s; }
+  .skeleton-card:nth-child(3) { animation-delay: 0.2s; }
+  .skeleton-card:nth-child(4) { animation-delay: 0.3s; }
+  .skeleton-card:nth-child(5) { animation-delay: 0.4s; }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .skeleton-line {
+      height: 0.875rem;
+    }
+    
+    .skeleton-avatar {
+      width: 4rem;
+      height: 4rem;
+    }
+  }
+
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-pulse,
+    .skeleton-line,
+    .skeleton-badge,
+    .skeleton-tag,
+    .skeleton-link,
+    .skeleton-avatar,
+    .skeleton-icon {
+      animation: none;
+    }
+  }
+</style> 

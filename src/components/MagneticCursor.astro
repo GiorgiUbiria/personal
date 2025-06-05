@@ -1,0 +1,280 @@
+---
+// Magnetic Cursor Component
+---
+
+<div
+    id="magnetic-cursor"
+    class="fixed pointer-events-none z-50 mix-blend-difference"
+>
+    <div
+        class="cursor-dot w-2 h-2 bg-primary rounded-full transition-all duration-300 ease-out"
+    >
+    </div>
+    <div
+        class="cursor-ring w-8 h-8 border border-primary rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
+    >
+    </div>
+</div>
+
+<script>
+    class MagneticCursor {
+        cursor: HTMLElement;
+        dot: any;
+        ring: any;
+        mousePos: { x: number; y: number };
+        cursorPos: { x: number; y: number };
+        ringPos: { x: number; y: number };
+        isHovering: boolean;
+        magneticElements: any[];
+        constructor() {
+            this.cursor = document.getElementById("magnetic-cursor");
+            this.dot = this.cursor?.querySelector(".cursor-dot");
+            this.ring = this.cursor?.querySelector(".cursor-ring");
+            this.mousePos = { x: 0, y: 0 };
+            this.cursorPos = { x: 0, y: 0 };
+            this.ringPos = { x: 0, y: 0 };
+            this.isHovering = false;
+            this.magneticElements = [];
+
+            if (this.cursor) {
+                this.init();
+            }
+        }
+
+        init() {
+            this.bindEvents();
+            this.findMagneticElements();
+            this.animate();
+            this.setupIntersectionObserver();
+        }
+
+        bindEvents() {
+            document.addEventListener("mousemove", (e) => {
+                this.mousePos.x = e.clientX;
+                this.mousePos.y = e.clientY;
+                this.updateCursor();
+            });
+
+            document.addEventListener("mouseenter", () => {
+                this.cursor.style.opacity = "1";
+            });
+
+            document.addEventListener("mouseleave", () => {
+                this.cursor.style.opacity = "0";
+            });
+
+            // Hide cursor on touch devices
+            document.addEventListener("touchstart", () => {
+                this.cursor.style.display = "none";
+            });
+        }
+
+        findMagneticElements() {
+            // Find all interactive elements
+            const selectors = [
+                "button",
+                "a",
+                ".card",
+                ".timeline-item",
+                ".btn",
+                ".badge",
+                'input[type="checkbox"]',
+                ".collapse-title",
+                ".stat-item",
+            ];
+
+            this.magneticElements = Array.from(document.querySelectorAll(
+                selectors.join(", "),
+            ));
+
+            this.magneticElements.forEach((element) => {
+                element.addEventListener("mouseenter", () =>
+                    this.onElementHover(element),
+                );
+                element.addEventListener("mouseleave", () =>
+                    this.onElementLeave(element),
+                );
+            });
+        }
+
+        setupIntersectionObserver() {
+            // Re-scan for new elements when they come into view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        this.findMagneticElements();
+                    }
+                });
+            });
+
+            document.querySelectorAll(".join > *").forEach((section) => {
+                observer.observe(section);
+            });
+        }
+
+        onElementHover(element) {
+            this.isHovering = true;
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            // Scale and move cursor towards element center
+            this.dot.style.transform = "scale(1.5)";
+            this.ring.style.transform = "translate(-50%, -50%) scale(1.5)";
+            this.ring.style.borderWidth = "2px";
+
+            // Add magnetic attraction
+            const attraction = this.calculateAttraction(centerX, centerY);
+            this.cursorPos.x += attraction.x * 0.3;
+            this.cursorPos.y += attraction.y * 0.3;
+
+            // Add element-specific effects
+            if (element.classList.contains("card")) {
+                this.ring.style.borderColor = "oklch(var(--p))";
+                this.dot.style.backgroundColor = "oklch(var(--p))";
+            } else if (element.classList.contains("btn")) {
+                this.ring.style.borderColor = "oklch(var(--s))";
+                this.dot.style.backgroundColor = "oklch(var(--s))";
+            } else if (element.tagName === "A") {
+                this.ring.style.borderColor = "oklch(var(--a))";
+                this.dot.style.backgroundColor = "oklch(var(--a))";
+            }
+        }
+
+        onElementLeave(element) {
+            this.isHovering = false;
+
+            // Reset cursor appearance
+            this.dot.style.transform = "scale(1)";
+            this.ring.style.transform = "translate(-50%, -50%) scale(1)";
+            this.ring.style.borderWidth = "1px";
+            this.ring.style.borderColor = "oklch(var(--p))";
+            this.dot.style.backgroundColor = "oklch(var(--p))";
+        }
+
+        calculateAttraction(targetX, targetY) {
+            const dx = targetX - this.mousePos.x;
+            const dy = targetY - this.mousePos.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 100) {
+                const force = (100 - distance) / 100;
+                return {
+                    x: dx * force * 0.1,
+                    y: dy * force * 0.1,
+                };
+            }
+
+            return { x: 0, y: 0 };
+        }
+
+        updateCursor() {
+            if (!this.isHovering) {
+                // Smooth following when not hovering
+                this.cursorPos.x += (this.mousePos.x - this.cursorPos.x) * 0.1;
+                this.cursorPos.y += (this.mousePos.y - this.cursorPos.y) * 0.1;
+            }
+
+            // Update ring position (slower)
+            this.ringPos.x += (this.mousePos.x - this.ringPos.x) * 0.05;
+            this.ringPos.y += (this.mousePos.y - this.ringPos.y) * 0.05;
+
+            // Apply positions
+            this.cursor.style.left = `${this.cursorPos.x}px`;
+            this.cursor.style.top = `${this.cursorPos.y}px`;
+
+            this.ring.style.left = `${this.ringPos.x - this.cursorPos.x}px`;
+            this.ring.style.top = `${this.ringPos.y - this.cursorPos.y}px`;
+        }
+
+        animate() {
+            this.updateCursor();
+            requestAnimationFrame(() => this.animate());
+        }
+    }
+
+    // Initialize magnetic cursor
+    document.addEventListener("DOMContentLoaded", () => {
+        // Only initialize on non-touch devices
+        if (!("ontouchstart" in window)) {
+            new MagneticCursor();
+        }
+    });
+</script>
+
+<style>
+    #magnetic-cursor {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .cursor-dot {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+    }
+
+    .cursor-ring {
+        z-index: 1;
+    }
+
+    /* Hide default cursor on interactive elements */
+    button,
+    a,
+    .card,
+    .timeline-item,
+    .btn,
+    .badge,
+    input[type="checkbox"],
+    .collapse-title,
+    .stat-item {
+        cursor: none;
+    }
+
+    /* Ensure cursor is visible above everything */
+    #magnetic-cursor {
+        z-index: 9999;
+    }
+
+    /* Responsive: hide on mobile */
+    @media (max-width: 768px) {
+        #magnetic-cursor {
+            display: none !important;
+        }
+
+        /* Restore default cursors on mobile */
+        button,
+        a,
+        .card,
+        .timeline-item,
+        .btn,
+        .badge,
+        input[type="checkbox"],
+        .collapse-title,
+        .stat-item {
+            cursor: pointer;
+        }
+    }
+
+    /* Respect reduced motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+        #magnetic-cursor {
+            display: none !important;
+        }
+
+        button,
+        a,
+        .card,
+        .timeline-item,
+        .btn,
+        .badge,
+        input[type="checkbox"],
+        .collapse-title,
+        .stat-item {
+            cursor: pointer;
+        }
+    }
+</style>
+
