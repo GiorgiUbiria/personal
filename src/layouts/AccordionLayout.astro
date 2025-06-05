@@ -5,16 +5,145 @@ const { title, icon } = Astro.props;
 ---
 
 <BaseLayout>
-  <div class="collapse collapse-arrow ease-in-out duration-700">
-    <input aria-label={title} type="checkbox"/>
-    <div class="collapse-title font-extrabold tracking-tight md:text-2xl">
-      <div class="flex">
-        <Icon name={icon} class="w-8 h-8 mr-4" />
-        {title}
+  <div class="collapse collapse-arrow ease-in-out duration-700 group hover:bg-base-200/50 transition-all rounded-lg border border-transparent hover:border-primary/20 hover:shadow-lg">
+    <input aria-label={title} type="checkbox" class="peer"/>
+    <div class="collapse-title font-extrabold tracking-tight md:text-2xl hover:text-primary transition-all duration-300 cursor-pointer relative overflow-hidden">
+      <!-- Ripple effect background -->
+      <div class="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      
+      <div class="flex items-center relative z-10">
+        <Icon 
+          name={icon} 
+          class="w-8 h-8 mr-4 transition-all duration-300 group-hover:text-primary group-hover:scale-110 peer-checked:rotate-12" 
+        />
+        <span class="transition-all duration-300 group-hover:translate-x-1">{title}</span>
       </div>
+      
+      <!-- Animated underline -->
+      <div class="absolute bottom-2 left-12 w-0 h-0.5 bg-primary transition-all duration-500 group-hover:w-1/3"></div>
     </div>
-    <div class="collapse-content">
-      <slot/>
+    
+    <div class="collapse-content transition-all duration-500 ease-out">
+      <div class="pt-2 animate-fade-in-content">
+        <slot/>
+      </div>
     </div>
   </div>
 </BaseLayout>
+
+<style>
+  /* Enhanced collapse animations */
+  .collapse-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.7s ease-out, padding 0.3s ease-out;
+  }
+
+  .collapse input:checked ~ .collapse-content {
+    max-height: 2000px; /* Large enough for content */
+    padding-bottom: 1rem;
+  }
+
+  /* Content fade-in animation */
+  @keyframes fade-in-content {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-content {
+    animation: fade-in-content 0.5s ease-out 0.2s both;
+  }
+
+  /* Arrow rotation animation */
+  .collapse-arrow .collapse-title:after {
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+
+  .collapse input:checked ~ .collapse-title:after {
+    transform: rotate(90deg);
+    color: oklch(var(--p));
+  }
+
+  /* Hover effects for the entire collapse */
+  .collapse:hover .collapse-title:after {
+    color: oklch(var(--p));
+    transform: scale(1.1);
+  }
+
+  /* Ripple effect on click */
+  .collapse-title:active::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: oklch(var(--p)/0.2);
+    transform: translate(-50%, -50%);
+    animation: ripple 0.6s ease-out;
+  }
+
+  @keyframes ripple {
+    to {
+      width: 300px;
+      height: 300px;
+      opacity: 0;
+    }
+  }
+
+  /* Enhanced focus states */
+  .collapse input:focus-visible ~ .collapse-title {
+    outline: 2px solid oklch(var(--p));
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
+
+  /* Smooth border transitions */
+  .collapse {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .collapse:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px oklch(var(--s)/0.15);
+  }
+
+  /* Icon animations */
+  .collapse input:checked ~ .collapse-title .w-8 {
+    animation: icon-bounce 0.5s ease-out;
+  }
+
+  @keyframes icon-bounce {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+  }
+
+  /* Title text effects */
+  .collapse-title:hover span {
+    text-shadow: 0 0 8px oklch(var(--p)/0.3);
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .collapse-title {
+      font-size: 1.25rem;
+    }
+    
+    .w-8 {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+</style>

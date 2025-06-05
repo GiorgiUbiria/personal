@@ -3,9 +3,138 @@ const { icon, url, url_name } = Astro.props;
 import { Icon } from "astro-icon/components";
 ---
 
-<a target="_blank" href={url}>
-  <button class="btn btn-outline btn-md mr-2">
-    <Icon name={icon} class="w-6 h-6" />
-    {url_name}
+<a target="_blank" href={url} class="group">
+  <button class="btn btn-outline btn-md mr-2 relative overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:scale-105 transition-all duration-300 group-hover:border-primary group-hover:text-primary">
+    <!-- Shimmer effect -->
+    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+    
+    <!-- Button content -->
+    <div class="relative z-10 flex items-center">
+      <Icon 
+        name={icon} 
+        class="w-6 h-6 mr-2 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110" 
+      />
+      <span class="transition-all duration-300 group-hover:translate-x-1">{url_name}</span>
+    </div>
+    
+    <!-- Gradient border effect -->
+    <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-primary via-secondary to-primary opacity-0 group-hover:opacity-20 transition-opacity duration-300 -z-10"></div>
   </button>
 </a>
+
+<style>
+  /* Enhanced button animations */
+  .btn {
+    position: relative;
+    background: linear-gradient(135deg, transparent 0%, oklch(var(--b1)) 100%);
+    border: 2px solid oklch(var(--bc)/0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn:hover {
+    background: linear-gradient(135deg, oklch(var(--p)/0.1) 0%, oklch(var(--s)/0.1) 100%);
+    border-color: oklch(var(--p));
+    box-shadow: 
+      0 10px 25px oklch(var(--p)/0.2),
+      0 0 0 1px oklch(var(--p)/0.1);
+  }
+
+  /* Pulse animation on focus */
+  .btn:focus-visible {
+    animation: pulse-focus 2s ease-in-out infinite;
+    outline: none;
+  }
+
+  @keyframes pulse-focus {
+    0%, 100% {
+      box-shadow: 0 0 0 0 oklch(var(--p)/0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 8px oklch(var(--p)/0);
+    }
+  }
+
+  /* Icon bounce effect */
+  .btn:hover .w-6 {
+    animation: icon-dance 0.6s ease-in-out;
+  }
+
+  @keyframes icon-dance {
+    0%, 100% {
+      transform: rotate(0deg) scale(1);
+    }
+    25% {
+      transform: rotate(-5deg) scale(1.1);
+    }
+    75% {
+      transform: rotate(5deg) scale(1.1);
+    }
+  }
+
+  /* Text slide effect */
+  .btn:hover span {
+    text-shadow: 0 0 8px oklch(var(--p)/0.3);
+  }
+
+  /* Loading state animation */
+  .btn:active {
+    transform: scale(0.98) translateY(1px);
+    transition: transform 0.1s ease;
+  }
+
+  /* Gradient border animation */
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(45deg, oklch(var(--p)), oklch(var(--s)), oklch(var(--p)));
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+  }
+
+  .btn:hover::before {
+    opacity: 0.3;
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Accessibility improvements */
+  .btn:focus-visible {
+    outline: 2px solid oklch(var(--p));
+    outline-offset: 4px;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+    
+    .w-6 {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .btn,
+    .w-6,
+    span {
+      transition: none;
+      animation: none;
+    }
+  }
+</style>

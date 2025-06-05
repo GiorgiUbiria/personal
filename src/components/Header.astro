@@ -3,45 +3,177 @@ import { Icon } from "astro-icon/components";
 import * as about from "../pages/about/about.md";
 ---
 
-<header class="mx-auto pt-6 pb-2 relative">
+<header class="mx-auto pt-6 pb-2 relative animate-fade-in-down">
   <article
     class="flex flex-col md:flex-col items-center gap-4 w-full max-w-2xl"
   >
     <div
-      class="flex-shrink-0 w-20 md:w-24 rounded-full shadow-sm overflow-hidden"
+      class="flex-shrink-0 w-20 md:w-24 rounded-full shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-500 animate-float"
     >
       <img
         alt="avatar"
         src="/profile.webp"
-        class="grayscale-[50] hover:grayscale-0 rounded-full"
+        class="grayscale-[50] hover:grayscale-0 rounded-full transition-all duration-500 group-hover:scale-110 group-hover:rotate-3"
       />
     </div>
 
-    <div class="text-center">
+    <div class="text-center animate-slide-up-stagger">
       <div
         class="flex justify-center md:justify-between items-center mb-2 relative"
       >
-        <h1 class="text-3xl font-extrabold tracking-tight md:text-3xl relative">
+        <h1 class="text-3xl font-extrabold tracking-tight md:text-3xl relative hover:text-primary transition-colors duration-300 animate-text-glow">
           {about.frontmatter.name}
-          <div class="absolute top-0 left-full ml-2 -mt-4">
-            <div class="badge w-max text-sm font-light badge-outline shadow-lg">
+          <div class="absolute top-0 left-full ml-2 -mt-4 animate-bounce-gentle">
+            <div class="badge w-max text-sm font-light badge-outline shadow-lg hover:badge-primary hover:text-primary-content hover:scale-110 transition-all duration-300 cursor-default">
               {about.frontmatter.pronouns}
             </div>
           </div>
         </h1>
       </div>
-      <h2 class="text-lg mb-2 text-secondary">
+      <h2 class="text-lg mb-2 text-secondary hover:text-base-content transition-colors duration-300 animate-slide-in-left">
         {about.frontmatter.designation}
       </h2>
-      <div class="flex items-center justify-center mt-1">
-        <Icon name="carbon:location" class="w-4 h-4 mr-1" />
-        <p class="text-sm text-secondary">{about.frontmatter.location}</p>
+      <div class="flex items-center justify-center mt-1 hover:text-primary transition-colors duration-300 animate-slide-in-right">
+        <Icon name="carbon:location" class="w-4 h-4 mr-1 animate-pulse-gentle" />
+        <p class="text-sm text-secondary hover:text-base-content transition-colors duration-300">{about.frontmatter.location}</p>
       </div>
     </div>
   </article>
 </header>
 
 <style>
+  /* Floating animation for profile image */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  /* Fade in down animation */
+  @keyframes fade-in-down {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-down {
+    animation: fade-in-down 0.8s ease-out;
+  }
+
+  /* Staggered slide up animation */
+  @keyframes slide-up-stagger {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-up-stagger {
+    animation: slide-up-stagger 0.6s ease-out 0.3s both;
+  }
+
+  /* Text glow effect */
+  @keyframes text-glow {
+    0%, 100% {
+      text-shadow: 0 0 5px transparent;
+    }
+    50% {
+      text-shadow: 0 0 10px oklch(var(--p)/0.3);
+    }
+  }
+
+  .animate-text-glow:hover {
+    animation: text-glow 2s ease-in-out infinite;
+  }
+
+  /* Gentle bounce for badge */
+  @keyframes bounce-gentle {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+
+  .animate-bounce-gentle {
+    animation: bounce-gentle 3s ease-in-out infinite;
+  }
+
+  /* Slide in animations */
+  @keyframes slide-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-left {
+    animation: slide-in-left 0.6s ease-out 0.5s both;
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.6s ease-out 0.7s both;
+  }
+
+  /* Gentle pulse for location icon */
+  @keyframes pulse-gentle {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.1);
+    }
+  }
+
+  .animate-pulse-gentle {
+    animation: pulse-gentle 3s ease-in-out infinite;
+  }
+
+  /* Enhanced hover effects */
+  h1:hover {
+    transform: scale(1.02);
+    transition: transform 0.3s ease;
+  }
+
+  .badge:hover {
+    box-shadow: 0 0 15px oklch(var(--p)/0.4);
+  }
+
+  /* Responsive adjustments */
   @media (max-width: 768px) {
     .flex-col.justify-end {
       display: flex;
@@ -49,5 +181,18 @@ import * as about from "../pages/about/about.md";
       justify-content: center;
       align-items: center;
     }
+    
+    .animate-float {
+      animation-duration: 6s; /* Slower on mobile */
+    }
+  }
+
+  /* Focus states for accessibility */
+  img:focus,
+  h1:focus,
+  .badge:focus {
+    outline: 2px solid oklch(var(--p));
+    outline-offset: 4px;
+    border-radius: 8px;
   }
 </style>

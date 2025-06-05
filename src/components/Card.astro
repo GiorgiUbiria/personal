@@ -4,22 +4,25 @@ const { timeframe, title, description, url, tags, url_name, location } =
   Astro.props;
 ---
 
-<div class="card card-compact card-bordered border border-[oklch(var(--s))] w-full md:w-112 lg:w-128 hover:shadow-lg transition-all my-4">
-  <div class="card-body">
+<div class="card card-compact card-bordered border border-[oklch(var(--s))] w-full md:w-112 lg:w-128 hover:shadow-2xl hover:-translate-y-2 hover:border-primary/50 transition-all duration-500 ease-out my-4 group relative overflow-hidden">
+  <!-- Shimmer effect overlay -->
+  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none"></div>
+  
+  <div class="card-body relative z-10">
     <div class="grid grid-cols-3 gap-4 mb-2">
       <div class="self-start col-span-2 justify-self-start text-left">
-        <h1 class="uppercase card-title font-extrabold tracking-tighter md:text-2xl">{title}</h1>
+        <h1 class="uppercase card-title font-extrabold tracking-tighter md:text-2xl group-hover:text-primary transition-colors duration-300">{title}</h1>
         {location && (
-          <div class="flex items-center mt-2">
-            <Icon name="carbon:location" class="w-4 h-4 mr-1" />
-            <p class="text-sm  font-light text-secondary">{location}</p>
+          <div class="flex items-center mt-2 opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+            <Icon name="carbon:location" class="w-4 h-4 mr-1 group-hover:text-primary transition-colors duration-300" />
+            <p class="text-sm font-light text-secondary group-hover:text-base-content transition-colors duration-300">{location}</p>
           </div>
         )}
       </div>
 
       <div class="self-center justify-self-end">
         {timeframe && (
-          <div class="badge w-max h-max text-center badge-outline inline-block align-middle shadow-md font-mono">
+          <div class="badge w-max h-max text-center badge-outline inline-block align-middle shadow-md font-mono hover:shadow-lg hover:scale-105 transition-all duration-300 group-hover:badge-primary group-hover:text-primary-content">
             {timeframe}
           </div>
         )}
@@ -28,24 +31,105 @@ const { timeframe, title, description, url, tags, url_name, location } =
 
     <div class="grid grid-cols-3 gap-4 place-items-center">
       <div class="self-start col-span-2 justify-self-start text-left">
-        <article class="prose text-secondary">
+        <article class="prose text-secondary group-hover:text-base-content transition-colors duration-300">
           <Fragment set:html={description}></Fragment>
         </article>
         {Array.isArray(tags) && (
           <div class="flex flex-wrap content-around gap-2 my-4">
-            {tags.map((item) => (
-              <span class="badge text-center inline-block align-middle w-max h-max text-sm  badge-outline shadow-md mb-1" :key={item}>{item}</span>
+            {tags.map((item, index) => (
+              <span 
+                class="badge text-center inline-block align-middle w-max h-max text-sm badge-outline shadow-md mb-1 hover:badge-primary hover:text-primary-content hover:scale-110 transition-all duration-300 cursor-default"
+                style={`animation-delay: ${index * 0.1}s`}
+                :key={item}
+              >
+                {item}
+              </span>
             ))}
           </div>
         )}
       </div>
 
       <div class="self-center justify-self-end">
-        <a href={url} target="_blank" class="link link-hover text-sm text-right flex justify-center items-center">
-          {url_name}
-          {url !== "#" && <Icon name="carbon:link" class="w-4 h-4 ml-2" />}
+        <a 
+          href={url} 
+          target="_blank" 
+          class="link link-hover text-sm text-right flex justify-center items-center group-hover:text-primary hover:scale-105 transition-all duration-300 relative overflow-hidden"
+        >
+          <span class="relative z-10">{url_name}</span>
+          {url !== "#" && (
+            <Icon 
+              name="carbon:link" 
+              class="w-4 h-4 ml-2 group-hover:rotate-12 group-hover:scale-110 transition-all duration-300" 
+            />
+          )}
+          <!-- Link underline effect -->
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
         </a>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  /* Staggered tag animation */
+  .badge {
+    animation: tag-fade-in 0.6s ease-out both;
+  }
+
+  @keyframes tag-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Card entrance animation */
+  .card {
+    animation: card-slide-up 0.8s ease-out both;
+  }
+
+  @keyframes card-slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Enhanced hover effects */
+  .card:hover {
+    background: linear-gradient(135deg, oklch(var(--b1)) 0%, oklch(var(--b2)/0.5) 100%);
+  }
+
+  /* Link pulse effect */
+  .link:hover {
+    animation: gentle-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes gentle-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  /* Badge hover glow */
+  .badge:hover {
+    box-shadow: 0 0 20px oklch(var(--p)/0.3);
+  }
+
+  /* Smooth focus states */
+  .card:focus-within {
+    outline: 2px solid oklch(var(--p));
+    outline-offset: 4px;
+  }
+</style>

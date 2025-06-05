@@ -2,16 +2,187 @@
 const getYear = () => new Date().getFullYear().toString();
 ---
 
-<footer
-  class="flex justify-center items-center bg-transparent py-4"
->
-  <p class="flex items-center text-center font-light text-sm text-secondary">
+<footer class="flex justify-center items-center bg-transparent py-4 border-t border-base-300/50 backdrop-blur-sm relative group">
+  <!-- Animated background line -->
+  <div class="absolute top-0 left-1/2 w-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent transition-all duration-800 group-hover:w-full transform -translate-x-1/2"></div>
+  
+  <p class="flex items-center text-center font-light text-sm text-secondary hover:text-base-content transition-colors duration-300">
     &copy; {getYear()} developed by
-    <a target="_blank" class="link ml-1" href="https://github.com/GiorgiUbiria">Giorgi Ubiria</a>
+    <a 
+      target="_blank" 
+      class="link ml-1 hover:text-primary transition-all duration-300 hover:scale-105 relative group/link overflow-hidden" 
+      href="https://github.com/GiorgiUbiria"
+    >
+      <span class="relative z-10">Giorgi Ubiria</span>
+      <!-- Animated underline -->
+      <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover/link:w-full"></span>
+      <!-- Sliding background -->
+      <span class="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 -translate-x-full group-hover/link:translate-x-0 transition-transform duration-500"></span>
+    </a>
   </p>
+  
   <img
-    class="rounded-full w-4 h-4 ml-2 shadow-md border border-black"
+    class="rounded-full w-4 h-4 ml-2 shadow-md border border-black transition-all duration-300 hover:scale-110 hover:rotate-12 hover:shadow-lg cursor-pointer animate-float"
     src="gl_flag_128x.png"
-    alt="Galician Flag"
+    alt="Georgian Flag"
   />
 </footer>
+
+<style>
+  /* Footer entrance animation */
+  footer {
+    animation: footer-slide-up 0.8s ease-out 0.8s both;
+  }
+
+  @keyframes footer-slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Floating animation for flag */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  /* Enhanced link hover effects */
+  .link {
+    position: relative;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    transition: all 0.3s ease;
+  }
+
+  .link:hover {
+    text-shadow: 0 0 8px oklch(var(--p)/0.4);
+    transform: translateY(-1px);
+  }
+
+  /* Link ripple effect on click */
+  .link:active::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: oklch(var(--p)/0.3);
+    transform: translate(-50%, -50%);
+    animation: ripple 0.6s ease-out;
+  }
+
+  @keyframes ripple {
+    to {
+      width: 100px;
+      height: 100px;
+      opacity: 0;
+    }
+  }
+
+  /* Flag hover effects */
+  img:hover {
+    filter: brightness(1.1) saturate(1.2);
+    box-shadow: 0 0 15px oklch(var(--p)/0.3);
+  }
+
+  /* Flag click animation */
+  img:active {
+    animation: flag-bounce 0.3s ease-out;
+  }
+
+  @keyframes flag-bounce {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2) rotate(15deg);
+    }
+  }
+
+  /* Copyright text animation */
+  p {
+    animation: text-fade-in 0.6s ease-out 1s both;
+  }
+
+  @keyframes text-fade-in {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Enhanced backdrop blur */
+  footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, oklch(var(--b1)/0.8) 0%, oklch(var(--b2)/0.6) 100%);
+    backdrop-filter: blur(10px);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  footer:hover::before {
+    opacity: 1;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    footer {
+      padding: 1rem 0.5rem;
+    }
+    
+    p {
+      font-size: 0.75rem;
+    }
+    
+    img {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
+  /* Focus states for accessibility */
+  .link:focus-visible {
+    outline: 2px solid oklch(var(--p));
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+  }
+
+  img:focus-visible {
+    outline: 2px solid oklch(var(--p));
+    outline-offset: 2px;
+    border-radius: 50%;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    footer,
+    .link,
+    img,
+    p {
+      animation: none;
+      transition: none;
+    }
+  }
+</style>
