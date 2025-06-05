@@ -7,12 +7,4 @@ pronouns: "he/him"
 website: "https://github.com/GiorgiUbiria"
 ---
 
-Full-Stack Web Developer with over 6 months of professional
-experience and 3 years of total experience, skilled in both
-Front-End and Back-End development. Proficient in DevOps
-principles and cloud technologies. Highly adaptable, with
-a passion for solving complex problems and delivering
-user-friendly web solutions. Experienced in both freelancing
-and collaborative team environments. Eager to contribute
-expertise to a Software Engineer role and build innovative,
-high-impact web applications.
+Full Stack Developer with 3 years of experience building robust web applications across modern JavaScript and PHP stacks. Proficient in designing RESTful APIs, managing relational databases, and developing responsive, maintainable frontends with frameworks like React and Vue. Focused on clean architecture, performance, and solving real-world problems. Eager to continuously learn, experiment with new technologies, and improve both technical and system design skills.
