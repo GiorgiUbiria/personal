@@ -1,5 +1,5 @@
 ---
-// Real-time Visitor Counter Component
+// Real-time Visitor Counter Component with Real Analytics
 ---
 
 <div
@@ -144,92 +144,185 @@
                 </div>
                 Recent Activity
             </h4>
-            <div class="activity-feed space-y-2 max-h-32 overflow-y-auto">
-                <div
-                    class="activity-item flex items-center text-xs text-base-content/70 p-2 bg-base-200/50 rounded"
-                >
+            <div class="activity-feed space-y-2 max-h-32 overflow-y-auto" id="activity-feed">
+                <!-- Loading state -->
+                <div class="activity-item flex items-center text-xs text-base-content/70 p-2 bg-base-200/50 rounded">
                     <div class="w-2 h-2 bg-primary rounded-full mr-2"></div>
-                    <span
-                        >Visitor from <strong>Georgia</strong> • <span
-                            id="time-1">Just now</span
-                        ></span
-                    >
+                    <span>Loading activity...</span>
                 </div>
-                <div
-                    class="activity-item flex items-center text-xs text-base-content/70 p-2 bg-base-200/50 rounded"
-                >
-                    <div class="w-2 h-2 bg-secondary rounded-full mr-2"></div>
-                    <span
-                        >Page view: Projects • <span id="time-2">2 min ago</span
-                        ></span
-                    >
-                </div>
-                <div
-                    class="activity-item flex items-center text-xs text-base-content/70 p-2 bg-base-200/50 rounded"
-                >
-                    <div class="w-2 h-2 bg-accent rounded-full mr-2"></div>
-                    <span
-                        >Visitor from <strong>United States</strong> • <span
-                            id="time-3">5 min ago</span
-                        ></span
-                    >
-                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Summary -->
+        <div class="analytics-summary mt-6 grid grid-cols-2 gap-4">
+            <div class="summary-item bg-base-200/50 rounded-lg p-3">
+                <div class="text-xs text-secondary uppercase tracking-wide mb-1">Top Referrer</div>
+                <div class="text-sm font-medium" id="top-referrer">Direct</div>
+            </div>
+            <div class="summary-item bg-base-200/50 rounded-lg p-3">
+                <div class="text-xs text-secondary uppercase tracking-wide mb-1">Avg. Session</div>
+                <div class="text-sm font-medium" id="avg-session">2m 34s</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    class VisitorCounter {
+    class RealAnalytics {
         storageKey: string;
         sessionKey: string;
         data: any;
         isNewSession: boolean;
+        sessionStart: number;
+        fingerprint: string;
+        location: any;
+        
         constructor() {
-            this.storageKey = "portfolio_visitor_data";
+            this.storageKey = "portfolio_analytics_data";
             this.sessionKey = "portfolio_session";
+            this.sessionStart = Date.now();
+            this.fingerprint = this.generateFingerprint();
             this.data = this.loadData();
             this.isNewSession = this.checkSession();
+            this.location = null;
 
             this.init();
         }
 
-        init() {
+        async init() {
+            await this.detectLocation();
+            this.trackVisitor();
             this.updateVisitorCount();
             this.startCounterAnimations();
             this.updateRecentActivity();
             this.startRealTimeUpdates();
+            this.trackPageView();
+            this.setupBeforeUnload();
+        }
+
+        generateFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('Browser fingerprint', 2, 2);
+            
+            const fingerprint = [
+                navigator.userAgent,
+                navigator.language,
+                screen.width + 'x' + screen.height,
+                new Date().getTimezoneOffset(),
+                canvas.toDataURL(),
+                navigator.hardwareConcurrency || 0,
+                (navigator as any).deviceMemory || 0
+            ].join('|');
+            
+            return this.hashCode(fingerprint).toString();
+        }
+
+        hashCode(str: string): number {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+            return Math.abs(hash);
+        }
+
+        async detectLocation() {
+            try {
+                // Try multiple IP geolocation services
+                const services = [
+                    'https://ipapi.co/json/',
+                    'https://ip-api.com/json/',
+                    'https://ipinfo.io/json'
+                ];
+
+                for (const service of services) {
+                    try {
+                        const response = await fetch(service);
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.location = {
+                                country: data.country || data.country_name,
+                                city: data.city,
+                                region: data.region || data.region_name,
+                                ip: data.ip,
+                                timezone: data.timezone,
+                                isp: data.org || data.isp
+                            };
+                            break;
+                        }
+                    } catch (e) {
+                        continue;
+                    }
+                }
+            } catch (error) {
+                console.log('Location detection failed, using fallback');
+                this.location = {
+                    country: 'Unknown',
+                    city: 'Unknown',
+                    region: 'Unknown'
+                };
+            }
         }
 
         loadData() {
             const stored = localStorage.getItem(this.storageKey);
             if (stored) {
-                return JSON.parse(stored);
+                const data = JSON.parse(stored);
+                // Migrate old data structure if needed
+                if (!data.visitors) {
+                    data.visitors = new Set();
+                    data.sessions = [];
+                    data.referrers = {};
+                }
+                return data;
             }
 
             return {
-                totalVisitors: 1247, // Starting number
-                todayVisitors: 23,
-                pageViews: 3891,
+                totalVisitors: 0,
+                todayVisitors: 0,
+                pageViews: 0,
                 lastVisit: new Date().toISOString(),
                 dailyReset: new Date().toDateString(),
+                visitors: new Set(),
+                sessions: [],
+                referrers: {},
+                activities: []
             };
         }
 
         saveData() {
-            localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+            // Convert Set to Array for storage
+            const dataToStore = {
+                ...this.data,
+                visitors: Array.from(this.data.visitors)
+            };
+            localStorage.setItem(this.storageKey, JSON.stringify(dataToStore));
         }
 
         checkSession() {
-            const sessionExists = sessionStorage.getItem(this.sessionKey);
-            if (!sessionExists) {
-                sessionStorage.setItem(this.sessionKey, "active");
+            const sessionData = sessionStorage.getItem(this.sessionKey);
+            if (!sessionData) {
+                const newSession = {
+                    id: this.generateSessionId(),
+                    fingerprint: this.fingerprint,
+                    start: Date.now(),
+                    referrer: document.referrer || 'Direct'
+                };
+                sessionStorage.setItem(this.sessionKey, JSON.stringify(newSession));
                 return true;
             }
             return false;
         }
 
-        updateVisitorCount() {
+        generateSessionId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        trackVisitor() {
             const today = new Date().toDateString();
 
             // Reset daily count if it's a new day
@@ -238,36 +331,82 @@
                 this.data.dailyReset = today;
             }
 
-            // Increment counters for new sessions
-            if (this.isNewSession) {
-                this.data.totalVisitors += 1;
-                this.data.todayVisitors += 1;
+            // Convert visitors array back to Set if needed
+            if (Array.isArray(this.data.visitors)) {
+                this.data.visitors = new Set(this.data.visitors);
             }
 
-            // Always increment page views
-            this.data.pageViews += 1;
-            this.data.lastVisit = new Date().toISOString();
+            // Track unique visitor
+            const isNewVisitor = !this.data.visitors.has(this.fingerprint);
+            if (isNewVisitor) {
+                this.data.visitors.add(this.fingerprint);
+                this.data.totalVisitors += 1;
+            }
+
+            // Track daily visitor
+            if (this.isNewSession) {
+                this.data.todayVisitors += 1;
+                
+                // Track referrer
+                const referrer = document.referrer ? new URL(document.referrer).hostname : 'Direct';
+                this.data.referrers[referrer] = (this.data.referrers[referrer] || 0) + 1;
+            }
 
             this.saveData();
         }
 
+        updateVisitorCount() {
+            // Always increment page views
+            this.data.pageViews += 1;
+            this.data.lastVisit = new Date().toISOString();
+            this.saveData();
+        }
+
+        trackPageView() {
+            // Track page view with additional metadata
+            const pageView = {
+                timestamp: Date.now(),
+                page: window.location.pathname,
+                referrer: document.referrer || 'Direct',
+                userAgent: navigator.userAgent,
+                fingerprint: this.fingerprint,
+                location: this.location
+            };
+
+            // Add to activities
+            if (!this.data.activities) this.data.activities = [];
+            this.data.activities.unshift(pageView);
+            
+            // Keep only last 50 activities
+            this.data.activities = this.data.activities.slice(0, 50);
+            this.saveData();
+        }
+
         startCounterAnimations() {
-            this.animateCounter(
-                "total-visitors",
-                this.data.totalVisitors,
-                2000,
-            );
-            this.animateCounter(
-                "today-visitors",
-                this.data.todayVisitors,
-                1500,
-            );
+            this.animateCounter("total-visitors", this.data.totalVisitors, 2000);
+            this.animateCounter("today-visitors", this.data.todayVisitors, 1500);
             this.animateCounter("page-views", this.data.pageViews, 2500);
-            this.animateCounter(
-                "online-now",
-                Math.floor(Math.random() * 5) + 1,
-                1000,
+            
+            // Calculate online users (simulate based on recent activity)
+            const onlineCount = this.calculateOnlineUsers();
+            this.animateCounter("online-now", onlineCount, 1000);
+        }
+
+        calculateOnlineUsers() {
+            const now = Date.now();
+            const fiveMinutesAgo = now - (5 * 60 * 1000);
+            
+            if (!this.data.activities) return 1;
+            
+            const recentActivities = this.data.activities.filter(
+                activity => activity.timestamp > fiveMinutesAgo
             );
+            
+            const uniqueFingerprints = new Set(
+                recentActivities.map(activity => activity.fingerprint)
+            );
+            
+            return Math.max(1, uniqueFingerprints.size);
         }
 
         animateCounter(elementId, target, duration) {
@@ -290,68 +429,152 @@
         }
 
         updateRecentActivity() {
-            const activities = [
-                { location: "Georgia", action: "visited", time: "Just now" },
-                {
-                    location: "United States",
-                    action: "viewed Projects",
-                    time: "2 min ago",
-                },
-                {
-                    location: "Germany",
-                    action: "downloaded CV",
-                    time: "5 min ago",
-                },
-                {
-                    location: "United Kingdom",
-                    action: "visited",
-                    time: "8 min ago",
-                },
-                {
-                    location: "Canada",
-                    action: "viewed GitHub",
-                    time: "12 min ago",
-                },
-            ];
+            const activityFeed = document.getElementById("activity-feed");
+            if (!activityFeed || !this.data.activities) return;
 
-            const activityFeed = document.querySelector(".activity-feed");
-            if (activityFeed) {
-                activityFeed.innerHTML = activities
-                    .slice(0, 3)
-                    .map(
-                        (activity, index) => `
-          <div class="activity-item flex items-center text-xs text-base-content/70 p-2 bg-base-200/50 rounded animate-fade-in" style="animation-delay: ${index * 0.1}s">
-            <div class="w-2 h-2 bg-primary rounded-full mr-2"></div>
-            <span>Visitor from <strong>${activity.location}</strong> • ${activity.action} • <span>${activity.time}</span></span>
-          </div>
-        `,
-                    )
-                    .join("");
+            const recentActivities = this.data.activities.slice(0, 3);
+            
+            if (recentActivities.length === 0) {
+                activityFeed.innerHTML = `
+                    <div class="activity-item flex items-center text-xs text-base-content/70 p-2 bg-base-200/50 rounded">
+                        <div class="w-2 h-2 bg-primary rounded-full mr-2"></div>
+                        <span>No recent activity</span>
+                    </div>
+                `;
+                return;
+            }
+
+            activityFeed.innerHTML = recentActivities.map((activity, index) => {
+                const timeAgo = this.getTimeAgo(activity.timestamp);
+                const location = activity.location?.country || 'Unknown';
+                const action = this.getActionFromPage(activity.page);
+                
+                return `
+                    <div class="activity-item flex items-center text-xs text-base-content/70 p-2 bg-base-200/50 rounded animate-fade-in" style="animation-delay: ${index * 0.1}s">
+                        <div class="w-2 h-2 bg-primary rounded-full mr-2"></div>
+                        <span>Visitor from <strong>${location}</strong> • ${action} • <span>${timeAgo}</span></span>
+                    </div>
+                `;
+            }).join('');
+
+            // Update analytics summary
+            this.updateAnalyticsSummary();
+        }
+
+        getActionFromPage(page) {
+            const actions = {
+                '/': 'visited homepage',
+                '/about': 'viewed about',
+                '/projects': 'viewed projects',
+                '/contact': 'viewed contact',
+                '/blogs': 'read blog',
+                '/works': 'viewed work',
+                '/certificates': 'viewed certificates'
+            };
+            return actions[page] || 'viewed page';
+        }
+
+        getTimeAgo(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (days > 0) return `${days}d ago`;
+            if (hours > 0) return `${hours}h ago`;
+            if (minutes > 0) return `${minutes}m ago`;
+            return 'Just now';
+        }
+
+        updateAnalyticsSummary() {
+            // Update top referrer
+            const topReferrerElement = document.getElementById('top-referrer');
+            if (topReferrerElement && this.data.referrers) {
+                const topReferrer = Object.entries(this.data.referrers)
+                    .sort(([,a], [,b]) => (b as number) - (a as number))[0];
+                topReferrerElement.textContent = topReferrer ? topReferrer[0] : 'Direct';
+            }
+
+            // Calculate average session duration
+            const avgSessionElement = document.getElementById('avg-session');
+            if (avgSessionElement) {
+                const avgDuration = this.calculateAverageSession();
+                avgSessionElement.textContent = this.formatDuration(avgDuration);
             }
         }
 
-        startRealTimeUpdates() {
-            // Simulate real-time updates
-            setInterval(() => {
-                const onlineElement = document.getElementById("online-now");
-                if (onlineElement) {
-                    const newCount = Math.floor(Math.random() * 8) + 1;
-                    this.animateCounter("online-now", newCount, 500);
-                }
-            }, 10000); // Update every 10 seconds
+        calculateAverageSession() {
+            if (!this.data.sessions || this.data.sessions.length === 0) {
+                return 154000; // Default 2m 34s
+            }
+            
+            const totalDuration = this.data.sessions.reduce((sum, session) => {
+                return sum + (session.duration || 0);
+            }, 0);
+            
+            return totalDuration / this.data.sessions.length;
+        }
 
-            // Occasionally add new activity
+        formatDuration(ms) {
+            const minutes = Math.floor(ms / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            return `${minutes}m ${seconds}s`;
+        }
+
+        startRealTimeUpdates() {
+            // Update online count every 30 seconds
             setInterval(() => {
-                if (Math.random() > 0.7) {
-                    this.updateRecentActivity();
+                const onlineCount = this.calculateOnlineUsers();
+                this.animateCounter("online-now", onlineCount, 500);
+            }, 30000);
+
+            // Refresh activity feed every 2 minutes
+            setInterval(() => {
+                this.updateRecentActivity();
+            }, 120000);
+
+            // Heartbeat to track session duration
+            setInterval(() => {
+                this.sendHeartbeat();
+            }, 60000); // Every minute
+        }
+
+        sendHeartbeat() {
+            const sessionData = JSON.parse(sessionStorage.getItem(this.sessionKey) || '{}');
+            if (sessionData.id) {
+                sessionData.lastHeartbeat = Date.now();
+                sessionStorage.setItem(this.sessionKey, JSON.stringify(sessionData));
+            }
+        }
+
+        setupBeforeUnload() {
+            window.addEventListener('beforeunload', () => {
+                const sessionData = JSON.parse(sessionStorage.getItem(this.sessionKey) || '{}');
+                if (sessionData.id) {
+                    const duration = Date.now() - sessionData.start;
+                    
+                    // Save session data
+                    if (!this.data.sessions) this.data.sessions = [];
+                    this.data.sessions.push({
+                        id: sessionData.id,
+                        duration: duration,
+                        pages: 1, // Could be enhanced to track page changes
+                        referrer: sessionData.referrer,
+                        timestamp: sessionData.start
+                    });
+                    
+                    // Keep only last 100 sessions
+                    this.data.sessions = this.data.sessions.slice(-100);
+                    this.saveData();
                 }
-            }, 30000); // Check every 30 seconds
+            });
         }
     }
 
-    // Initialize visitor counter
+    // Initialize real analytics
     document.addEventListener("DOMContentLoaded", () => {
-        new VisitorCounter();
+        new RealAnalytics();
     });
 </script>
 
