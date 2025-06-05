@@ -3,25 +3,19 @@ import { Icon } from "astro-icon/components";
 import * as about from "../pages/about/about.md";
 ---
 
-<header class="mx-auto pt-6 pb-2 relative animate-fade-in-down">
-  <article
-    class="flex flex-col md:flex-col items-center gap-4 w-full max-w-2xl"
-  >
-    <div
-      class="flex-shrink-0 w-20 md:w-24 rounded-full shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-500 animate-float"
-    >
+<header class="w-full flex justify-center pt-6 pb-2 relative animate-fade-in-down">
+  <article class="flex flex-col items-center gap-4 w-full max-w-2xl px-4">
+    <div class="flex-shrink-0 w-20 md:w-24 rounded-full shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-500 animate-float mx-auto">
       <img
         alt="avatar"
         src="/profile.webp"
-        class="grayscale-[50] hover:grayscale-0 rounded-full transition-all duration-500 group-hover:scale-110 group-hover:rotate-3"
+        class="grayscale-[50] hover:grayscale-0 rounded-full transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 w-full h-full object-cover"
       />
     </div>
 
-    <div class="text-center animate-slide-up-stagger">
-      <div
-        class="flex justify-center md:justify-between items-center mb-2 relative"
-      >
-        <h1 class="text-3xl font-extrabold tracking-tight md:text-3xl relative hover:text-primary transition-colors duration-300 animate-text-glow">
+    <div class="text-center animate-slide-up-stagger w-full">
+      <div class="flex justify-center items-center mb-2 relative">
+        <h1 class="text-3xl font-extrabold tracking-tight md:text-3xl relative hover:text-primary transition-colors duration-300 animate-text-glow text-center">
           {about.frontmatter.name}
           <div class="absolute top-0 left-full ml-2 -mt-4 animate-bounce-gentle">
             <div class="badge w-max text-sm font-light badge-outline shadow-lg hover:badge-primary hover:text-primary-content hover:scale-110 transition-all duration-300 cursor-default">
@@ -30,7 +24,7 @@ import * as about from "../pages/about/about.md";
           </div>
         </h1>
       </div>
-      <h2 class="text-lg mb-2 text-secondary hover:text-base-content transition-colors duration-300 animate-slide-in-left">
+      <h2 class="text-lg mb-2 text-secondary hover:text-base-content transition-colors duration-300 animate-slide-in-left text-center">
         {about.frontmatter.designation}
       </h2>
       <div class="flex items-center justify-center mt-1 hover:text-primary transition-colors duration-300 animate-slide-in-right">
